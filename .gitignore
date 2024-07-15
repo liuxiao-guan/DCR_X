@@ -1,0 +1,3 @@
+wandb/*
+*/*.pyc
+pretrainedmodels/sscd_disc_large.torchscript.pt
