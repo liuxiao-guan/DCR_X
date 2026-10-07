@@ -405,7 +405,7 @@ def main_worker(gpu, ngpus_per_node, args):
         ranks = torch.argsort(-sim, dim=0).cpu().numpy()
 
         ######################
-        ret_savepath = f'/root/autodl-tmp/logs/Projects/DCR/ret_plots/{dp}/'
+        ret_savepath = f'/root/autodl-tmp/logs/Projects/DCR_X/ret_plots/{dp}/'
         os.makedirs(ret_savepath,exist_ok=True)
 
         simscores = sim.T 
@@ -598,11 +598,14 @@ def main_worker(gpu, ngpus_per_node, args):
                                         50,
                                         "cuda",
                                         2048, 4)
-        # wandb.log({
-        #     # 'precision':precision,
-        #     # 'recall':recall,
-        #     'fid':fid,
-        # })
+        wandb.log({
+            # 'precision':precision,
+            # 'recall':recall,
+            'fid':fid,
+        })
+        print({
+            'fid':fid,
+            })
         
         # 打开文件并写入变量
         with open(f"{ret_savepath}/output.txt", "w") as file:

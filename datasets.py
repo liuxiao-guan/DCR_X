@@ -148,6 +148,7 @@ class ObjectAttributeDataset(ImageFolder):
                 max_length=self.tokenizer.model_max_length,
                 return_tensors="pt",
             ).input_ids
+        example["index_ids"] = index
 
         return example
 

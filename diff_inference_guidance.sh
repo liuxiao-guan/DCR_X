@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=0 python diff_inference_guidance.py  -nb 4000 --modelpath /root/autodl-tmp/logs/Projects/DCR_X/train_fed_es/_instancelevel_blip_nodup_bs8_lr2.5e-06_gpu4_mr1.25_maxst1000_random_skipaug5.0_dy_exp_interex0.25_v/ --iternum=50

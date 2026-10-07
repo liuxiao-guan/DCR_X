@@ -49,7 +49,7 @@ def main(args):
         # 使用os.path.dirname()获取文件夹路径的倒数第二个文件夹
         second_last_folder = os.path.basename(os.path.dirname(os.path.dirname(args.modelpath)))
         new_folder_name = second_last_folder.replace("train", "inferences")
-        args.savepath = f'/root/autodl-tmp/logs/Projects/DCR/{new_folder_name}/laion_frozentext/test_{mp}'
+        args.savepath = f'/root/autodl-tmp/logs/Projects/DCR_X/{new_folder_name}/laion_frozentext/{mp}'
         args.dataset = 'laion'
         # if "traintext" not in args.modelpath:
         #     if "imagenette" in args.modelpath:
@@ -193,24 +193,24 @@ def main(args):
         for line in prompt_list:
             f.write(f"{line}\n")
     # prompt_list=["a photo of eiffel tower","a photo of Istanbul","a photo of Elon Musk","a photo of Emma Watson"]
-    prompt_list=["Way Out - Arrow Right",
-                "Load image into Gallery viewer, Adorable Baby Girls Kids Stripes Top Blouse w/ Collar",
-                "KOA Camping Corporation Logo",
-                "Non-iron Fil a fil Business Shirt in Shaped with Kent-Collar in Red |  Seidensticker Onlineshop",
-                "Wall View 002",
-                "Load image into Gallery viewer, Adorable Baby Girls Kids Stripes Top Blouse w/ Collar",
-                "Securitas and WeBeHome",
-                "Wall View 002",
-                "Image for Birchwood Casey® Shoot-N-C® Self-Adhesive 17.25"" Bull's-Eye Targets 5-pack from Academy",
-                "Meaning Adidas logo and symbol | history and evolution【2020】 | ロゴ",
-                "Image for Birchwood Casey® Shoot-N-C® Self-Adhesive 17.25"" Bull's-Eye Targets 5-pack from Academy",
-                "Wilson Pro Staff 25 Junior Tennis Racket",
-                "Video game icon vector"
-                ]
+    # prompt_list=["Way Out - Arrow Right",
+    #             "Load image into Gallery viewer, Adorable Baby Girls Kids Stripes Top Blouse w/ Collar",
+    #             "KOA Camping Corporation Logo",
+    #             "Non-iron Fil a fil Business Shirt in Shaped with Kent-Collar in Red |  Seidensticker Onlineshop",
+    #             "Wall View 002",
+    #             "Load image into Gallery viewer, Adorable Baby Girls Kids Stripes Top Blouse w/ Collar",
+    #             "Securitas and WeBeHome",
+    #             "Wall View 002",
+    #             "Image for Birchwood Casey® Shoot-N-C® Self-Adhesive 17.25"" Bull's-Eye Targets 5-pack from Academy",
+    #             "Meaning Adidas logo and symbol | history and evolution【2020】 | ロゴ",
+    #             "Image for Birchwood Casey® Shoot-N-C® Self-Adhesive 17.25"" Bull's-Eye Targets 5-pack from Academy",
+    #             "Wilson Pro Staff 25 Junior Tennis Racket",
+    #             "Video game icon vector"
+    #             ]
 
-    for i in tqdm(range(num_batches), desc='Processing batches', unit='batch'):
+    for i in tqdm(range(0,num_batches,5), desc='Processing batches', unit='batch'):
         if prompt_list is not None:
-            prompt = prompt_list[i]
+            prompt = prompt_list[i:i+5]
         else:
             raise "no prompt list!"
         
@@ -244,7 +244,7 @@ if __name__ == "__main__":
     parser.add_argument("--iternum", default=None, type=int)
     parser.add_argument("--rand_noise_lam", type=float, default=None)
     parser.add_argument("--rand_augs", type=str, default=None)
-    parser.add_argument("--rand_aug_repeats", type=int, default=2)
+    parser.add_argument("--rand_aug_repeats", type=int, default=4)
     parser.add_argument("--seed", type=int, default=42, help="A seed for reproducible training.")
     
 

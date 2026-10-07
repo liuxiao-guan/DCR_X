@@ -1,4 +1,5 @@
-from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
+from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler,UNet2DConditionModel
+from local_sd_pipeline import LocalStableDiffusionPipeline
 from datasets import insert_rand_word
 from tqdm import tqdm
 class Newpipe(StableDiffusionPipeline):
@@ -47,9 +48,9 @@ def main(args):
     else:
         mp = os.path.basename(os.path.normpath(args.modelpath))
         # 使用os.path.dirname()获取文件夹路径的倒数第二个文件夹
-        second_last_folder = os.path.basename(os.path.dirname(os.path.dirname(args.modelpath)))
+        second_last_folder = os.path.basename(os.path.dirname(args.modelpath))
         new_folder_name = second_last_folder.replace("train", "inferences")
-        args.savepath = f'/root/autodl-tmp/logs/Projects/DCR/{new_folder_name}/laion_frozentext/{mp}_acce'
+        args.savepath = f'/root/autodl-tmp/logs/Projects/DCR_X/{new_folder_name}/laion_frozentext/{mp}_acce_tarloss{args.optim_target_loss}'
         args.dataset = 'laion'
         # if "traintext" not in args.modelpath:
         #     if "imagenette" in args.modelpath:
@@ -114,9 +115,15 @@ def main(args):
         ).to("cuda")
         pipe.noiselam = args.rand_noise_lam
     else:
+        # unet_id = f"{checkpath}/unet"
+        # unet = UNet2DConditionModel.from_pretrained(
+        #     unet_id, torch_dtype=torch.bfloat16
+        # )
         pipe = LocalStableDiffusionPipeline.from_pretrained(
-            checkpath,safety_checker=None
+            checkpath,torch_dtype= torch.bfloat16,safety_checker=None
         ).to("cuda")
+        pipe.set_use_memory_efficient_attention_xformers(True)
+
 
     tokenizer = AutoTokenizer.from_pretrained(
             checkpath,
@@ -193,18 +200,38 @@ def main(args):
         for line in prompt_list:
             f.write(f"{line}\n")
 
-    for i in tqdm(range(0,num_batches,20), desc='Processing batches', unit='batch'):
+    for i in tqdm(range(0,num_batches,1), desc='Processing batches', unit='batch'):
         if prompt_list is not None:
-            prompt = prompt_list[i:i+20]
+            prompt = prompt_list[i:i+1]
         else:
             raise "no prompt list!"
-        if args.modelpath is None:
+        auged_prompt_embeds = pipe.aug_prompt(
+            prompt,
+            num_inference_steps=args.num_inference_steps,
+            guidance_scale=args.guidance_scale,
+            num_images_per_prompt=args.num_images_per_prompt,
+            target_steps=[args.optim_target_steps],
+            lr=args.optim_lr,
+            optim_iters=args.optim_iters,
+            target_loss=args.optim_target_loss,
+            )
 
-            images = pipe(prompt, num_inference_steps=50, generator=generator).images
-        else:
+            ### generation
+            #set_random_seed(seed)
+        outputs = pipe(
+            prompt_embeds=auged_prompt_embeds,
+            num_inference_steps=args.num_inference_steps,
+            guidance_scale=args.guidance_scale,
+            num_images_per_prompt=args.num_images_per_prompt,
+            )
+        images = outputs.images
+        # if args.modelpath is None:
 
-            images = pipe(prompt=prompt, height=args.resolution, width=args.resolution,
-                                        num_inference_steps=50, num_images_per_prompt=args.im_batch).images
+        #     images = pipe(prompt, num_inference_steps=50, generator=generator).images
+        # else:
+
+        #     images = pipe(prompt=prompt, height=args.resolution, width=args.resolution,
+        #                                 num_inference_steps=50, num_images_per_prompt=args.im_batch).images
         
         for j in range(len(images)):
             image = images[j]
@@ -232,6 +259,15 @@ if __name__ == "__main__":
     parser.add_argument("--rand_augs", type=str, default=None)
     parser.add_argument("--rand_aug_repeats", type=int, default=2)
     parser.add_argument("--seed", type=int, default=42, help="A seed for reproducible training.")
+    parser.add_argument("--guidance_scale", default=7.5, type=float)
+    parser.add_argument("--num_inference_steps", default=50, type=int)
+    parser.add_argument("--num_images_per_prompt", default=1, type=int)
+    # ours
+    parser.add_argument("--optim_target_steps", default=0, type=int)
+    parser.add_argument("--optim_lr", default=0.05, type=float)
+    parser.add_argument("--optim_iters", default=10, type=int)
+    parser.add_argument("--optim_target_loss", default=None, type=float)
+    
     
 
 

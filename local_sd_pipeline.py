@@ -524,7 +524,6 @@ class LocalStableDiffusionPipeline(StableDiffusionPipeline):
         # 4. Prepare timesteps
         self.scheduler.set_timesteps(num_inference_steps, device=device)
         timesteps = self.scheduler.timesteps
-
         # 5. Prepare latent variables
         num_channels_latents = self.unet.config.in_channels
         latents = self.prepare_latents(
@@ -603,7 +602,6 @@ class LocalStableDiffusionPipeline(StableDiffusionPipeline):
                                 ),
                             ]
                         )
-
                         noise_pred = self.unet(
                             latent_model_input,
                             t,
